@@ -128,11 +128,9 @@ router.route('/movies')
     })
 
     .get(authJwtController.isAuthenticated, function(req, res) {
-        if (req.query && req.query.reviews && req.query.reviews === 'true') {
-            Movie.findOne({Title: req.params.Title}), function (err, movies) {
-                if (err) {
-                    res.status(400).json({message: "Invalid Query"});
-                }
+        if (req.query && req.query.reviews && req.query.reviews === "true") {
+            Movie.findOne({title: req.params.title}, function (err, movies) {
+                if (err)  res.status(400).json({message: 'Invalid Query'});
                 else {
                     Movie.aggregate([
                         {
@@ -146,20 +144,17 @@ router.route('/movies')
                                 as: 'Reviews'
                             }
                         }
-                    ]).exec(function(err, movies) {
-                        if(err) {
-                            res.status(500).send(err);
-                        }
-                        else {
-                            res.json(movies);
-                        }
-                    })
+                    ]).exec(function(err, movies){
+                            if (err) {
+                                res.status(500).send(err);
+                            } else {
+                                res.json(movies);
+                            }
+                        })
                 }
-            }
+            })
         }
     })
-
-
 
     .delete(authJwtController.isAuthenticated, function(req, res) {
         if (!req.body.Title) {
