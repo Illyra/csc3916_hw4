@@ -13,6 +13,7 @@ var jwt = require('jsonwebtoken');
 var cors = require('cors');
 var User = require('./Users');
 var Movie = require('./movies');
+var Reviews = require('./reviews');
 
 var app = express();
 app.use(cors());
@@ -125,13 +126,39 @@ router.route('/movies')
             }
         })
     })
+
     .get(authJwtController.isAuthenticated, function(req, res) {
-        Movie.find({}, function(err, data){
-            if(err)
-                res.json(err);
-            res.json({success: true, message: data});
-        })
+        if (req.query && req.query.reviews && req.query.reviews === 'true') {
+            Movie.findOne({title: req.params.title}), function (err, movies) {
+                if(err) {
+                    res.status(400).json({message: 'Invalid Query'});
+                }
+                else {
+                    Movie.aggregate([
+                        {
+                            $match: {title: req.body.title}
+                        },
+                        {
+                            $lookup:{
+                                from: 'reviews',
+                                localField: 'Title',
+                                foreignField: 'Title',
+                                as: 'reviews'
+                            }.exec(function(err, movies){
+                                if(err) {
+                                    res.status(500).send(err);
+                                }
+                                else {
+                                    res.json(movies);
+                                }
+                            })
+                        }
+                    ])
+                }
+            }
+        }
     })
+
     .delete(authJwtController.isAuthenticated, function(req, res) {
         if (!req.body.Title) {
             res.json({success: false, message: "Please Include a title"})
@@ -149,6 +176,35 @@ router.route('/movies')
             });
         }
     })
+
+router.route('/Reviews')
+    .post(authJwtController.isAuthenticated, function (req, res) {
+        if(!req.body.Title || !req.body.Name || !req.body.Review || !req.body.Ratings) {
+            res.json({success: false, message: "Include, a Title, Name, Review, and Rating"});
+        }
+        else {
+            var review = new Reviews();
+            review.Title = req.body.Title;
+            review.Name = req.body.Name;
+            review.Rating = req.body.Rating;
+            review.Reviews = req.body.Reviews;
+            review.save(function (err) {
+                if (err) {
+                    if (err.code == 11000)
+                        return res.json({success: false, message: "Review already exists"});
+                    else
+                        return res.send(err);
+                }
+                res.json({message: "Review is created"});
+            });
+        }
+    })
+    .get(authJwtController.isAuthenticated, function (req, res){
+        Reviews.find({}, function(err, reviews){
+            res.json({Review: reviews});
+        })
+    });
+
 app.use('/', router);
 app.listen(process.env.PORT || 8080);
 module.exports = app; // for testing only
