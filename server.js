@@ -194,7 +194,7 @@ router.route('/Reviews')
             res.json({success: false, message: "Include, a Title, Name, Review, and Rating"});
         }
         else{
-            Movie.findOne({title: req.body.title}, (err, movie) => {
+            Movie.findOne({Title: req.body.Title}, (err, movie) => {
                 if(!movie) {
                     return res.status(403).json({success: false, message: "Unable to find movie"})
                 }
