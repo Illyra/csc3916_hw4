@@ -134,7 +134,7 @@ router.route('/movies')
             }
             if (!req.body.Title) {
                 Movie.aggregate([{
-                    $match: {title: req.body.title}
+                    $match: {Title: req.body.Title}
                 },
                     {
                         $lookup: {
