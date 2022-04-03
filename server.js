@@ -197,8 +197,8 @@ router.route('/Reviews')
             var review = new Reviews();
             review.Title = req.body.Title;
             review.Name = req.body.Name;
-            review.Rating = req.body.Rating;
-            review.Reviews = req.body.Reviews;
+            review.Ratings = req.body.Ratings;
+            review.Review = req.body.Review;
             review.save(function (err) {
                 if (err) {
                     if (err.code == 11000)
