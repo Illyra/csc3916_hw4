@@ -138,15 +138,16 @@ router.route('/movies')
                 },
                     {
                         $lookup: {
-                            from: "reviews",
+                            from: "Review",
                             localField: "Title",
                             foreignField: "Title",
-                            as: "reviews"
+                            as: "Review"
                         }
                     }]).exec(function (err, movie) {
                     if (err) {
-                        return res.json(err);
-                    } else {
+                        return res.status(500).send(err)
+                    }
+                    else {
                         return res.json(movie);
                     }
                 })
@@ -156,16 +157,14 @@ router.route('/movies')
                     return res.json(movie);
                 })
             }
-
-        }else {
+        }
+            else {
             Movie.find({}, function(err, movies){
                 if(err)
                     res.send(err);
                 res.json({Movie: movies});
             })
         }
-
-
     })
 
 
