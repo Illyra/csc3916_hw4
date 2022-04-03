@@ -129,46 +129,33 @@ router.route('/movies')
 
     .get(authJwtController.isAuthenticated, function(req, res) {
         if (req.query && req.query.reviews && req.query.reviews === 'true') {
-            if(err) {
-                res.status(400).json({message: 'Invalid Query'});
-            }
-            if (!req.body.Title) {
-                Movie.aggregate([{
-                    $match: {Title: req.body.Title}
-                },
-                    {
-                        $lookup: {
-                            from: "Review",
-                            localField: "Title",
-                            foreignField: "Title",
-                            as: "Review"
+            Movie.findOne({Title: req.params.Title}), function (err, movies) {
+                if (err) {
+                    res.status(400).json({message: "Invalid Query"});
+                }
+                else {
+                    Movie.aggregate([
+                        {
+                            $match: {title: req.body.title}
+                        },
+                        {
+                            $lookup: {
+                                from: 'Reviews',
+                                localField: 'Title',
+                                foreignField: 'Title',
+                                as: 'Reviews'
+                            }
                         }
-                    }]).exec(function (err, movie) {
-                    if (err) {
-                        return res.status(500).send(err)
-                    }
-                    else {
-                        return res.json(movie);
-                    }
-                })
+                    ]).exec(function(err, movies) {
+                        if(err) {
+                            res.status(500).send(err);
+                        }
+                        else {
+                            res.json(movies);
+                        }
+                    })
+                }
             }
-            else{
-                Movie.findOne({Title: req.body.Title}).exec(function(err, movie){
-                    if(!movie) {
-                        return res.status(403).json({success: false, message: "Unable to find movie"});
-                    }
-                    else {
-                        return res.json(movie);
-                    }
-                })
-            }
-        }
-            else {
-            Movie.find({}, function(err, movies){
-                if(err)
-                    res.send(err);
-                res.json({Movie: movies});
-            })
         }
     })
 
