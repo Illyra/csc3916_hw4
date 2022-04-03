@@ -128,47 +128,45 @@ router.route('/movies')
     })
 
     .get(authJwtController.isAuthenticated, function(req, res) {
-        if (req.query && req.query.Reviews) {
-            if (err) {
-                res.status(400).json({message: 'Invalid Query'});
-            }
-            if(req.query.Reviews === 'true') {
-                if(!req.body.title) {
-                    Movie.aggregate([
-                        {
-                            $match: {Title: req.body.Title}
-                        },
-                        {
-                            $lookup: {
-                                from: "Reviews",
-                                localField: "Title",
-                                foreignField: "Title",
-                                as: "Reviews"
-                            }
+        let doc = req.query.Reviews;
+        if(doc == 'true') {
+            if (!req.body.Title) {
+                Movie.aggregate([
+                    {
+                    $match: {Title: req.body.Title}
+                    },
+                    {
+                        $lookup: {
+                            from: "Reviews",
+                            localField: "Title",
+                            foreignField: "Title",
+                            as: "Reviews"
                         }
+                    }
                     ]).exec(function (err, movie) {
-                        if(err){
-                            return res.json(err);
-                        }
-                        else {
-                            return res.json(movie);
-                        }
-                    })
-                }
-                else{
-                    Movie.findOne({Title: req.body.Title}).exec(function(err, movie) {
+                    if (err) {
+                        return res.json(err);
+                    } else {
                         return res.json(movie);
-                    })
-                }}
-                else{
-                    Movie.find({}, function(err, movies){
-                        if(err){
-                            res.send(err)
-                        }
-                        res.json({Movie: movies});
-                    })
-                }
+                    }
+                })
+            }
+            else{
+                Movie.findOne({Title: req.body.Title}).exec(function(err, movie){
+                    return res.json(movie);
+                })
+            }
+
         }
+        else {
+            Movie.find({}, function(err, movies){
+                if(err)
+                    res.send(err);
+                res.json({Movie: movies});
+            })
+        }
+
+
     })
 
     .delete(authJwtController.isAuthenticated, function(req, res) {
