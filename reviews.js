@@ -3,7 +3,14 @@ var Schema = mongoose.Schema;
 
 mongoose.Promise = global.Promise;
 
-mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true});
+try{
+    mongoose.connect(process.env.DB, {useNewUrlParser: true}, () =>
+        console.log("connected"));
+}
+catch(error){
+    console.log("Couldn't connect");
+
+}
 mongoose.set('useCreateIndex', true);
 
 var reviewSchema = new Schema({
