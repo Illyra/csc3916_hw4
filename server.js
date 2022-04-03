@@ -155,7 +155,7 @@ router.route('/movies')
             else{
                 Movie.findOne({Title: req.body.Title}).exec(function(err, movie){
                     if(!movie) {
-                        return res.status(403).json({success: false, message: "Unable to find movie"}
+                        return res.status(403).json({success: false, message: "Unable to find movie"});
                     }
                     else {
                         return res.json(movie);
