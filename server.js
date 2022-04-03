@@ -132,8 +132,7 @@ router.route('/movies')
             if (err) {
                 res.status(400).json({message: 'Invalid Query'});
             }
-            let doc = req.query.Reviews;
-            if(doc == 'true') {
+            if(req.query.Reviews == 'true') {
                 if(!req.body.title) {
                     Movie.aggregate([
                         {
