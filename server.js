@@ -193,21 +193,28 @@ router.route('/Reviews')
         if(!req.body.Title || !req.body.Name || !req.body.Review || !req.body.Ratings) {
             res.json({success: false, message: "Include, a Title, Name, Review, and Rating"});
         }
-        else {
-            var review = new Reviews();
-            review.Title = req.body.Title;
-            review.Name = req.body.Name;
-            review.Ratings = req.body.Ratings;
-            review.Review = req.body.Review;
-            review.save(function (err) {
-                if (err) {
-                    if (err.code == 11000)
-                        return res.json({success: false, message: "Review already exists"});
-                    else
-                        return res.send(err);
+        else{
+            Movie.findOne({title: req.body.title}, (err, movie) => {
+                if(!movie) {
+                    return res.status(403).json({success: false, message: "Unable to find movie"})
                 }
-                res.json({message: "Review is created"});
-            });
+                else {
+                    var review = new Reviews();
+                    review.Title = req.body.Title;
+                    review.Name = req.body.Name;
+                    review.Ratings = req.body.Ratings;
+                    review.Review = req.body.Review;
+                    review.save(function (err) {
+                        if (err) {
+                            if (err.code == 11000)
+                                return res.json({success: false, message: "Review already exists"});
+                            else
+                                return res.send(err);
+                        }
+                        res.json({message: "Review is created"});
+                    });
+                }
+            })
         }
     })
     .get(authJwtController.isAuthenticated, function (req, res){
