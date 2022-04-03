@@ -129,30 +129,46 @@ router.route('/movies')
 
     .get(authJwtController.isAuthenticated, function(req, res) {
         if (req.query && req.query.Reviews && req.query.Reviews === "true") {
-            Movie.findOne({Title: req.params.Title}, function (err, movies) {
-                if (err)  res.status(400).json({message: 'Invalid Query'});
-                else {
+            if (err) {
+                res.status(400).json({message: 'Invalid Query'});
+            }
+            let doc = req.query.Reviews;
+            if(doc == 'true') {
+                if(!req.body.title) {
                     Movie.aggregate([
                         {
-                            $match: {title: req.body.title}
+                            $match: {Title: req.body.Title}
                         },
                         {
                             $lookup: {
-                                from: 'Reviews',
-                                localField: 'Title',
-                                foreignField: 'Title',
-                                as: 'Reviews'
+                                from: "Reviews",
+                                localField: "Title",
+                                foreignField: "Title",
+                                as: "Reviews"
                             }
                         }
-                    ]).exec(function(err, movies){
-                            if (err) {
-                                res.status(500).send(err);
-                            } else {
-                                res.json(movies);
-                            }
-                        })
+                    ]).exec(function (err, movie) {
+                        if(err){
+                            return res.json(err);
+                        }
+                        else {
+                            return res.json(movie);
+                        }
+                    })
                 }
-            })
+                else{
+                    Movie.findOne({Title: req.body.Title}).exec(function(err, movie) {
+                        return res.json(movie);
+                    })
+                }}
+                else{
+                    Movie.find({}, function(err, movies){
+                        if(err){
+                            res.send(err)
+                        }
+                        res.json({Movie: movies});
+                    })
+                }
         }
     })
 
