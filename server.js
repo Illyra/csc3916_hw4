@@ -128,11 +128,11 @@ router.route('/movies')
     })
 
     .get(authJwtController.isAuthenticated, function(req, res) {
-        if (req.query && req.query.Reviews && req.query.Reviews === "true") {
+        if (req.query && req.query.Reviews) {
             if (err) {
                 res.status(400).json({message: 'Invalid Query'});
             }
-            if(req.query.Reviews == 'true') {
+            if(req.query.Reviews === 'true') {
                 if(!req.body.title) {
                     Movie.aggregate([
                         {
