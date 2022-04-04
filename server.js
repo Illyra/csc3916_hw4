@@ -128,8 +128,7 @@ router.route('/movies')
     })
 
     .get(authJwtController.isAuthenticated, function(req, res) {
-        let doc = req.query.Reviews;
-        if(doc == 'true') {
+        if(req.query && req.query.Reviews && req.query.Reviews === 'True') {
             if (!req.body.Title) {
                 Movie.aggregate([
                     {
@@ -165,8 +164,6 @@ router.route('/movies')
                 res.json({Movie: movies});
             })
         }
-
-
     })
 
     .delete(authJwtController.isAuthenticated, function(req, res) {
