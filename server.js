@@ -215,7 +215,7 @@ router.route('/Reviews')
     })
     .get(authJwtController.isAuthenticated, function (req, res){
         Reviews.find({}, function(err, reviews){
-            res.json({Review: reviews});
+            res.json({Reviews: reviews});
         })
     });
 
