@@ -17,5 +17,5 @@ passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
     });
 }));
 
-exports.isAuthenticated = passport.authenticate('jwt', { session : false });
+exports.isAuthenticated = passport.authenticate('JWT', { session : false });
 exports.secret = opts.secretOrKey ;
