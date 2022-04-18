@@ -18,7 +18,8 @@ var MovieSchema = new Schema({
     Title: {type:String, required: true},
     Year: {type:Date, required: true},
     Genre: {type: String, required: true, enum:["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Thriller", "Western"]},
-    Actors: {type:[{ActorName:String, CharacterName: String}], required: true}
+    Actors: {type:[{ActorName:String, CharacterName: String}], required: true},
+    imageUrl: {type:String, required: true}
 });
 
 module.exports = mongoose.model('Movie', MovieSchema);
