@@ -2,6 +2,9 @@
 React app
 https://glacial-retreat-17333.herokuapp.com/#/movielist
 
+React App Repo
+https://github.com/Illyra/CSC3916_HW5
+
 
 Api
 https://stormy-oasis-07240.herokuapp.com/
