@@ -250,8 +250,7 @@ router.route('/reviews')
     })
     .get(authJwtController.isAuthenticated, async (req, res) => {
         try{
-            const movie = req.body.Title;
-            const reviews = await Reviews.find({Title: movie}).select("_id Ratings").lean().exec();
+            const reviews = await Reviews.find()
             if (!reviews) {
                 return res.json(500).json("No review for ${movie}");
             }
