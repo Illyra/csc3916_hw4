@@ -283,7 +283,7 @@ router.route('/movies:movieID')
         catch(error) {
             return res.status(500).json(error);
         }
-    })
+    });
 app.use('/', router);
 app.listen(process.env.PORT || 8080);
 module.exports = app; // for testing only
