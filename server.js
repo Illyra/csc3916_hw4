@@ -129,7 +129,7 @@ router.route('/movies')
                     if (err) {
                         return res.json(err);
                     } else {
-                        return res.status(200).json({success: true, msg: "Movie with the reviews has been found", mov});
+                        return res.json(mov);
                     }
                 })
             } else {
