@@ -188,7 +188,7 @@ router.route('/movies')
                  if(err){
                      res.send(err);
                  }
-                 res.json({Movie:mov});
+                 res.json({Movies: mov});
              })
         }
     })
