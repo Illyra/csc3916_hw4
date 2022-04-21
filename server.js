@@ -165,11 +165,11 @@ router.route('/movies')
                             foreignField: 'Title',
                             as: 'reviews'
                         }
-                    }]).exec(function (err, mov) {
+                    }]).exec(function (err, movies) {
                         if (err) {
                             return res.json(err);
                         } else {
-                            return res.json({mov});
+                            return res.json({movies});
                         }
                     })
                 } else {
