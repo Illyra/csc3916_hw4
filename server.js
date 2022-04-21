@@ -157,7 +157,7 @@ router.route('/movies')
 
     .get(authJwtController.isAuthenticated, async (req, res) => {
         try{
-            const movies = await Movie.find();
+            const movie = await Movie.find();
             if (req.query && req.query.reviews && req.query.reviews === 'true') {
                 Movie.aggregate([{
                     $lookup: {
@@ -174,7 +174,7 @@ router.route('/movies')
                     }
                 })
             } else {
-                return res.status(200).json(movies);
+                return res.status(200).json(movie);
             }
         }
         catch(error) {
