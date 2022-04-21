@@ -241,22 +241,35 @@ router.route('/reviews')
             })
         }
     })
-    .get(authJwtController.isAuthenticated, async (req, res) => {
-        try{
-            const reviews = await Reviews.find()
-            if (!reviews) {
-                return res.json(500).json("No review for ${movie}");
-            }
-            res.status(200).json({success: true, Reviews: reviews});
+    .get(authJwtController.isAuthenticated, function (req, res) {
+        if(!req.body.Title){
+            res.json({SUCCESS:false, message: "Please provide a review to display"})
         }
-        catch(error){
-            if (error.message){
-                res.status(400).json({success: false, msg: 'Issue with Database/Unable to read database'});
-                console.log(error.message);
-            }
-            else{
-                res.status(400).json({success: false, msg: error});
-            }
+        else if(req.query.Reviews === "true"){
+            Movie.findOne({Title:req.body.Title}, function(err) {
+                if (err) {
+                    res.json({success: false, message: "Error! The review was not found"})
+                }
+                else{
+                    Movie.aggregate([{
+                        $match: {Title: req.body.Title}
+                    },
+                        {
+                            $lookup: {
+                                from: "Reviews",
+                                localField: "Title",
+                                foreignField: "Title",
+                                as: "Reviews"
+                            }
+                        }]).exec(function (err, mov) {
+                        if (err) {
+                            return res.json(err);
+                        } else {
+                            return res.json(mov);
+                        }
+                    })
+                }
+            })
         }
     });
 app.use('/', router);
