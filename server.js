@@ -116,38 +116,20 @@ router.route('/movies')
     })
 
     .get(authJwtController.isAuthenticated, async (req, res) => {
-        if (req.query && req.query.reviews && req.query.reviews === 'true') {
-            if (!req.body.Title) {
-                Movie.aggregate([{
-                    $lookup: {
-                        from: 'reviews',
-                        localField: 'Title',
-                        foreignField: 'Title',
-                        as: 'reviews',
-                    }
-                }]).exec(function (err, mov) {
-                    if (err) {
-                        return res.json(err);
-                    } else {
-                        return res.status(200).json({success: true, msg: "Movie with the reviews has been found", mov});
-                    }
-                })
-            } else {
-                Movie.findOne({Title: req.body.Title}).exec(function (err, movie) {
-                    return res.json(movie);
-                })
-            }
+        if(!req.body){
+            res.status(403).json({SUCCESS:false, message: "Please provide a movie to display"})
         }
-            else {
-                Movie.find({}, function(err, movies){
-                    if(err){
-                        res.send(err);
-                    }
-                    res.json({Movie:movies});
-                })
-            }
+        else{
+            Movie.find({title:req.body.title}).select("title year genre actorsName").exec(function(err, movie){
+                if (movie) {
+                    res.status(200).json({success: true, message: "Success! The Movie was found", Movie: movie})
+                }
+                else {
+                    res.status(404).json({success: false, message: "Movie not found"});
+                }
+            })
+        }
     })
-
     .get(authJwtController.isAuthenticated, function(req, res) {
         if(req.query && req.query.Reviews && req.query.Reviews === 'true') {
             if(err) throw err;
