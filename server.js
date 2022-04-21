@@ -155,41 +155,43 @@ router.route('/movies')
         }
     })
 
-    .get(authJwtController.isAuthenticated, async (req, res) => {
-            if (req.query && req.query.reviews && req.query.reviews === 'true') {
-                if (err) throw(err);
-                if (req.body.Title) {
-                    Movie.aggregate([{
-                        $match: {Title: req.body.Title},
+    .get(authJwtController.isAuthenticated, function(req, res) {
+        if(req.query && req.query.reviews && req.query.reviews === 'true') {
+            if(err) throw err;
+            if (!req.body.Title) {
+                Movie.aggregate([
+                    {
+                        $match: {Title: req.body.Title}
                     },
-                        {
+                    {
                         $lookup: {
-                            from: 'reviews',
-                            localField: 'Title',
-                            foreignField: 'Title',
-                            as: 'reviews'
+                            from: "reviews",
+                            localField: "Title",
+                            foreignField: "Title",
+                            as: "reviews"
                         }
-                    }]).exec(function (err, mov) {
-                        if (err) {
-                            return res.json(err);
-                        } else {
-                            return res.json({mov});
-                        }
-                    })
-                }
-                else {
-                    Movie.findOne({Title: req.body.Title}).exec(function (err, mov) {
+                    }
+                ]).exec(function (err, mov) {
+                    if (err) {
+                        return res.json(err);
+                    }
+                    else {
                         return res.json(mov);
-                    })
-                }
+                    }
+                })
             }
             else {
-             Movie.find({}, function(err, mov){
-                 if(err){
-                     res.send(err);
-                 }
-                 res.json({Movies: mov});
-             })
+                Movie.findOne({Title: req.body.Title}).exec(function(err, mov){
+                    return res.json(mov);
+                })
+            }
+        }
+        else {
+            Movie.find({}, function(err, mov){
+                if(err)
+                    res.send(err);
+                res.json({Movie: mov});
+            })
         }
     })
 
