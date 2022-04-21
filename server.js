@@ -247,7 +247,6 @@ router.route('/reviews')
             })
         }
     })
-    .get(authJwtController.isAuthenticated, async (req, res) => {
     .get(authJwtController.isAuthenticated, function (req, res){
             Reviews.find({}, function(err, reviews){
                 res.json({Reviews: reviews});
