@@ -156,41 +156,21 @@ router.route('/movies')
     })
 
     .get(authJwtController.isAuthenticated, function(req, res) {
-        if(req.query && req.query.reviews && req.query.reviews === 'true') {
-            if(err) throw err;
-            if (!req.body.Title) {
-                Movie.aggregate([
-                    {
-                        $match: {Title: req.body.Title}
-                    },
-                    {
-                        $lookup: {
-                            from: "reviews",
-                            localField: "Title",
-                            foreignField: "Title",
-                            as: "reviews"
-                        }
-                    }
-                ]).exec(function (err, mov) {
-                    if (err) {
-                        return res.json(err);
-                    }
-                    else {
-                        return res.json(mov);
-                    }
-                })
-            }
-            else {
-                Movie.findOne({Title: req.body.Title}).exec(function(err, mov){
-                    return res.json(mov);
-                })
-            }
-        }
-        else {
-            Movie.find({}, function(err, mov){
-                if(err)
-                    res.send(err);
-                res.json({Movie: mov});
+        if (req.query && req.query.reviews && req.query.reviews === "true") {
+            Movie.findOne({title: req.params.title}, function (err, movies) {
+                if (err)  throw err;
+                else {
+                    Movie.aggregate()
+                        .lookup({from: 'reviews', localField: 'title', foreignField: 'title', as: 'reviews'})
+                        .addFields({avgRating: {$avg: "$reviews.rating"}})
+                        .exec(function (err, movies) {
+                            if (err) {
+                                res.status(500).send(err);
+                            } else {
+                                res.json(movies);
+                            }
+                        })
+                }
             })
         }
     })
