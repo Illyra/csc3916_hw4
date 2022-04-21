@@ -244,26 +244,10 @@ router.route('/reviews')
             })
         }
     })
-    .get(authJwtController.isAuthenticated, async (req, res) => {
-        try{
-            if(!req.body.Title){
-                res.status(400).json({success:false, msg: "Please Insert a Title"});
-            }
-            const reviews = await Reviews.find()
-            if (!reviews) {
-                return res.json(500).json("No review for ${movie}");
-            }
-            res.status(200).json({success: true, Review: reviews});
-        }
-        catch(error){
-            if (error.message){
-                res.status(400).json({success: false, msg: 'Issue with Database/Unable to read database'});
-                console.log(error.message);
-            }
-            else{
-                res.status(400).json({success: false, msg: error});
-            }
-        }
+    .get(authJwtController.isAuthenticated, function (req, res){
+        Reviews.find({}, function(err, reviews){
+            res.json({Reviews: reviews});
+        })
     });
 app.use('/', router);
 app.listen(process.env.PORT || 8080);
