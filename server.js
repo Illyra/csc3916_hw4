@@ -219,7 +219,7 @@ router.route('/movies')
         }
     });
 
-router.route('/Reviews')
+router.route('/reviews')
     .post(authJwtController.isAuthenticated, function (req, res) {
         if(!req.body.Title || !req.body.Name || !req.body.Review || !req.body.Ratings) {
             res.json({success: false, message: "Include, a Title, Name, Review, and Rating"});
