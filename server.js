@@ -247,7 +247,7 @@ router.route('/reviews')
             if (!reviews) {
                 return res.json(500).json("No review for ${movie}");
             }
-            res.status(200).json({success: true, Review: reviews});
+            res.status(200).json({success: true, Reviews: reviews});
         }
         catch(error){
             if (error.message){
