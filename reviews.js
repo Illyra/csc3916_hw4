@@ -20,4 +20,4 @@ var reviewSchema = new Schema({
     Ratings: {type:Number, min: 0, max: 5, required:true}
 })
 
-module.exports = mongoose.model('Reviews', reviewSchema);
+module.exports = mongoose.model('reviews', reviewSchema);
