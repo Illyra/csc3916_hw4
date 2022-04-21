@@ -251,7 +251,7 @@ router.route('/reviews')
             }
         }
     });
-router.route('/movies:movieID')
+router.route('/movies/:movieID')
     .get(authJwtController.isAuthenticated, async (req, res) => {
         try{
             const movie = await Movie.findID(req.params.movieID);
