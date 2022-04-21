@@ -251,7 +251,39 @@ router.route('/reviews')
             }
         }
     });
-
+router.route('/movies:movieID')
+    .get(authJwtController.isAuthenticated, async (req, res) => {
+        try{
+            const movie = await Movie.findID(req.params.movieID);
+            if(!movie) {
+                return res.status(500).json({success: false, msg: "Couldn't find the movie...Try again."});
+            }
+            if (req.query && req.query.reviews && req.query.reviews === 'true') {
+                Movie.aggregate([{
+                    $match: {Title: movie.Title},
+                },
+                    {
+                        $lookup: {
+                            from: "reviews",
+                            localField: "Title",
+                            foreignField: "Title",
+                            as: "reviews",
+                        },
+                    }]).exec(function (err, mov) {
+                    if (err) {
+                        return res.json(err);
+                    } else {
+                        return res.status(200).json({success: true, msg: "Movie with the reviews has been found", mov});
+                    }
+                })
+            } else {
+                return res.status(200).json(movie);
+            }
+        }
+        catch(error) {
+            return res.status(500).json(error);
+        }
+    })
 app.use('/', router);
 app.listen(process.env.PORT || 8080);
 module.exports = app; // for testing only
