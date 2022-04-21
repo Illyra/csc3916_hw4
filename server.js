@@ -248,10 +248,24 @@ router.route('/reviews')
             })
         }
     })
-    .get(authJwtController.isAuthenticated, function (req, res){
-        Reviews.find({}, function(err, reviews){
-            res.json({Reviews: reviews});
-        })
+    .get(authJwtController.isAuthenticated, async (req, res) => {
+        try{
+            const movie = req.body.Title;
+            const reviews = await Reviews.find({Title: movie}).select("_id Ratings").lean().exec();
+            if (!reviews) {
+                return res.json(500).json("No review for ${movie}");
+            }
+            res.status(200).json({success: true, Review: reviews});
+        }
+        catch(error){
+            if (error.message){
+                res.status(400).json({success: false, msg: 'Issue with Database/Unable to read database'});
+                console.log(error.message);
+            }
+            else{
+                res.status(400).json({success: false, msg: error});
+            }
+        }
     });
 
 app.use('/', router);
