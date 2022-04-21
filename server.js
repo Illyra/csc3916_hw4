@@ -159,14 +159,11 @@ router.route('/movies')
             if (req.query && req.query.reviews && req.query.reviews === 'true') {
                 if (!req.body.Title) {
                     Movie.aggregate([{
-                        $match: {Title: req.body.Title}
-                            },
-                        {
                         $lookup: {
                             from: 'reviews',
                             localField: 'Title',
                             foreignField: 'Title',
-                            as: 'reviews',
+                            as: 'reviews'
                         }
                     }]).exec(function (err, mov) {
                         if (err) {
