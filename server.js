@@ -157,12 +157,8 @@ router.route('/movies')
 
     .get(authJwtController.isAuthenticated, async (req, res) => {
             if (req.query && req.query.reviews && req.query.reviews === 'true') {
-                if(err) throw err;
                 if (!req.body.Title) {
                     Movie.aggregate([{
-                        $match: {Title: req.body.Title}
-                        },
-                        {
                         $lookup: {
                             from: 'reviews',
                             localField: 'Title',
@@ -250,7 +246,7 @@ router.route('/reviews')
                 res.status(400).json({success:false, msg: "Please Insert a Title"});
             }
             const movie = req.body.Title;
-            const reviews = await Reviews.find({Title: movie}).select('_id Ratings').lean().exec();
+            const reviews = await Reviews.find({Title: movie}).select('_id Rating').lean().exec();
             if (!reviews) {
                 return res.json(500).json("No review for ${movie}");
             }
