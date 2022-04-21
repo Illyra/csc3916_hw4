@@ -239,7 +239,7 @@ router.route('/reviews')
     })
     .get(authJwtController.isAuthenticated, function (req, res) {
         if(!req.body.Title){
-            res.json({SUCCESS:false, message: "Please provide a review to display"})
+            res.json({success:false, message: "Please provide a review to display"})
         }
         else if(req.query.Reviews === "true"){
             Movie.findOne({Title:req.body.Title}, function(err) {
