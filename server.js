@@ -156,7 +156,6 @@ router.route('/movies')
     })
 
     .get(authJwtController.isAuthenticated, async (req, res) => {
-        try {
             if (req.query && req.query.reviews && req.query.reviews === 'true') {
                 if (!req.body.Title) {
                     Movie.aggregate([{
@@ -183,8 +182,7 @@ router.route('/movies')
                     })
                 }
             }
-        }
-        catch(error) {
+            else {
              Movie.find({}, function(err, movies){
                  if(err){
                      res.send(err);
