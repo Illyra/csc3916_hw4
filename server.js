@@ -215,7 +215,7 @@ router.route('/movies')
         }
     });
 
-router.route('/Reviews')
+router.route('/reviews')
     .post(authJwtController.isAuthenticated, function (req, res) {
         if(!req.body.Title || !req.body.Name || !req.body.Review || !req.body.Ratings) {
             res.json({success: false, message: "Include, a Title, Name, Review, and Rating"});
@@ -244,10 +244,27 @@ router.route('/Reviews')
             })
         }
     })
-    .get(authJwtController.isAuthenticated, function (req, res){
-        Reviews.find({}, function(err, reviews){
-            res.json({Reviews: reviews});
-        })
+    .get(authJwtController.isAuthenticated, async (req, res) => {
+        try{
+            if(!req.body.Title){
+                res.status(400).json({success:false, msg: "Please Insert a Title"});
+            }
+            const movie = req.body.Title;
+            const reviews = await Reviews.find({Title: movie}).select('_id Ratings').lean().exec();
+            if (!reviews) {
+                return res.json(500).json("No review for ${movie}");
+            }
+            res.status(200).json({success: true, Review: reviews});
+        }
+        catch(error){
+            if (error.message){
+                res.status(400).json({success: false, msg: 'Issue with Database/Unable to read database'});
+                console.log(error.message);
+            }
+            else{
+                res.status(400).json({success: false, msg: error});
+            }
+        }
     });
 app.use('/', router);
 app.listen(process.env.PORT || 8080);
