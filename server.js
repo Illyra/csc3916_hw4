@@ -156,21 +156,38 @@ router.route('/movies')
     })
 
     .get(authJwtController.isAuthenticated, function(req, res) {
-        if (req.query && req.query.reviews && req.query.reviews === "true") {
-            Movie.findOne({title: req.params.title}, function (err, movies) {
-                if (err)  throw err;
-                else {
-                    Movie.aggregate()
-                        .lookup({from: 'reviews', localField: 'title', foreignField: 'title', as: 'reviews'})
-                        .addFields({avgRating: {$avg: "$reviews.rating"}})
-                        .exec(function (err, movies) {
-                            if (err) {
-                                res.status(500).send(err);
-                            } else {
-                                res.json(movies);
-                            }
-                        })
-                }
+        if(req.query && req.query.reviews && req.query.reviews === 'true') {
+            if(err) throw err;
+            if (!req.body.Title) {
+                Movie.aggregate([
+                    {
+                        $lookup: {
+                            from: "reviews",
+                            localField: "Title",
+                            foreignField: "Title",
+                            as: "reviews"
+                        }
+                    }
+                ]).exec(function (err, mov) {
+                    if (err) {
+                        return res.json(err);
+                    }
+                    else {
+                        return res.json(mov);
+                    }
+                })
+            }
+            else {
+                Movie.findOne({Title: req.body.Title}).exec(function(err, mov){
+                    return res.json(mov);
+                })
+            }
+        }
+        else {
+            Movie.find({}, function(err, mov){
+                if(err)
+                    res.send(err);
+                res.json({Movie: mov});
             })
         }
     })
@@ -227,11 +244,28 @@ router.route('/reviews')
             })
         }
     })
-    .get(authJwtController.isAuthenticated, function (req, res){
-            Reviews.find({}, function(err, reviews){
-                res.json({Reviews: reviews});
-            })
-        });
+    .get(authJwtController.isAuthenticated, async (req, res) => {
+        try{
+            if(!req.body.Title){
+                res.status(400).json({success:false, msg: "Please Insert a Title"});
+            }
+            const movie = req.body.Title;
+            const reviews = await Reviews.find({Title: movie}).select('_id Rating').lean().exec();
+            if (!reviews) {
+                return res.json(500).json("No review for ${movie}");
+            }
+            res.status(200).json({success: true, Review: reviews});
+        }
+        catch(error){
+            if (error.message){
+                res.status(400).json({success: false, msg: 'Issue with Database/Unable to read database'});
+                console.log(error.message);
+            }
+            else{
+                res.status(400).json({success: false, msg: error});
+            }
+        }
+    });
 app.use('/', router);
 app.listen(process.env.PORT || 8080);
 module.exports = app; // for testing only
