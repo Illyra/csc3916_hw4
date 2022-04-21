@@ -161,9 +161,6 @@ router.route('/movies')
             if (!req.body.Title) {
                 Movie.aggregate([
                     {
-                        $match: {Title: req.body.Title}
-                    },
-                    {
                         $lookup: {
                             from: "reviews",
                             localField: "Title",
@@ -252,8 +249,7 @@ router.route('/reviews')
             if(!req.body.Title){
                 res.status(400).json({success:false, msg: "Please Insert a Title"});
             }
-            const movie = req.body.Title;
-            const reviews = await Reviews.find({Title: movie}).select('_id Rating').lean().exec();
+            const reviews = await Reviews.find();
             if (!reviews) {
                 return res.json(500).json("No review for ${movie}");
             }
