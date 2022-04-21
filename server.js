@@ -157,8 +157,12 @@ router.route('/movies')
 
     .get(authJwtController.isAuthenticated, async (req, res) => {
             if (req.query && req.query.reviews && req.query.reviews === 'true') {
-                if (!req.body.Title) {
+                if (err) throw(err);
+                if (req.body.Title) {
                     Movie.aggregate([{
+                        $match: {Title: req.body.Title},
+                    },
+                        {
                         $lookup: {
                             from: 'reviews',
                             localField: 'Title',
@@ -172,7 +176,8 @@ router.route('/movies')
                             return res.json({mov});
                         }
                     })
-                } else {
+                }
+                else {
                     Movie.findOne({Title: req.body.Title}).exec(function (err, mov) {
                         return res.json(mov);
                     })
