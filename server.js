@@ -249,23 +249,19 @@ router.route('/reviews')
     })
     .get(authJwtController.isAuthenticated, async (req, res) => {
         try{
-            if(!req.body.Title){
-                res.status(400).json({success:false, msg: "Please Insert a Title"});
-            }
+            if (!req.body.Title) throw 'Please provide the title'
             const movie = req.body.Title;
-            const reviews = await Reviews.find({Title: movie}).select('_id Rating').lean().exec();
-            if (!reviews) {
-                return res.json(500).json("No review for ${movie}");
-            }
+            const reviews = await Review.find({Title: movie}).select('_id Rating').lean().exec();
+            if (!reviews) throw 'No review for ${movie}';
             res.status(200).json({success: true, Review: reviews});
         }
-        catch(error){
-            if (error.message){
-                res.status(400).json({success: false, msg: 'Issue with Database/Unable to read database'});
-                console.log(error.message);
+        catch(errMsg){
+            if (errMsg.message){
+                res.status(400).json({success: false, msg: 'Database error'});
+                console.log(errMsg.message);
             }
             else{
-                res.status(400).json({success: false, msg: error});
+                res.status(400).json({success: false, msg: errMsg});
             }
         }
     });
