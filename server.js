@@ -115,44 +115,41 @@ router.route('/movies')
             }}
     })
 
-    .put(authJwtController.isAuthenticated, function (req, res) {
-        if(!req.body.Title)
-        {
-            res.json({success: false, message: "Enter a movie to update please"});
-        }
-        else
-        {
-            if(req.body.newTitle){
-                Movie.findOneAndUpdate({Title: req.body.Title}, {Title: req.body.newTitle}, function(err, mov){
-                    if(err){
-                        res.status(403).json({success:false, message: "Cannot update movie"});
+    .get(authJwtController.isAuthenticated, async (req, res) => {
+        if (req.query && req.query.reviews && req.query.reviews === 'true') {
+            if (!req.body.Title) {
+                Movie.aggregate([{
+                    $lookup: {
+                        from: 'reviews',
+                        localField: 'Title',
+                        foreignField: 'Title',
+                        as: 'reviews',
                     }
-                    else{
-                        res.status(200).json({success:true, message:"Movie has been update"});
+                }]).exec(function (err, mov) {
+                    if (err) {
+                        return res.json(err);
+                    } else {
+                        return res.status(200).json({
+                            success: true,
+                            msg: "Movie with the reviews has been found",
+                            mov
+                        });
                     }
-                });
-            }
-            if(req.body.newYear){
-                Movie.findOneAndUpdate({Title: req.body.Title}, {Year: req.body.newYear}, function(err, mov) {
-                    if(err) {
-                        res.status(403).json({success:false, message: "Cannot update movie"});
-                    }
-                    else{
-                        res.status(200).json({success:false, message: "Updated the movie year"});
-                    }
-                });
-            }
-            if(req.body.newGenre){
-                Movie.findOneAndUpdate({TItle: req.body.Title}, {Genre: req.body.newGenre}, function(err, mov){
-                    if(err){
-                        res.status(403).json({success:false, message: "Cannot update movie"});
-                    }
-                    else{
-                        res.status(200).json({success:true, message: "Genre has been updated"});
-                    }
-                });
+                })
+            } else {
+                Movie.findOne({Title: req.body.Title}).exec(function (err, movie) {
+                    return res.json(movie);
+                })
             }
         }
+            else {
+                Movie.find({}, function(err, movies){
+                    if(err){
+                        res.send(err);
+                    }
+                    res.json({Movie:movies});
+                })
+            }
     })
 
     .get(authJwtController.isAuthenticated, function(req, res) {
@@ -246,10 +243,7 @@ router.route('/reviews')
     })
     .get(authJwtController.isAuthenticated, async (req, res) => {
         try{
-            if(!req.body.Title){
-                res.status(400).json({success:false, msg: "Please Insert a Title"});
-            }
-            const reviews = await Reviews.find();
+            const reviews = await Reviews.find()
             if (!reviews) {
                 return res.json(500).json("No review for ${movie}");
             }
