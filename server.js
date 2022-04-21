@@ -156,26 +156,32 @@ router.route('/movies')
     })
 
     .get(authJwtController.isAuthenticated, async (req, res) => {
-        try{
+        try {
             if (req.query && req.query.reviews && req.query.reviews === 'true') {
-                Movie.aggregate([{
-                    $lookup: {
-                        from: 'reviews',
-                        localField: 'Title',
-                        foreignField: 'Title',
-                        as: 'reviews',
-                    }
-                }]).exec(function (err, mov) {
-                    if (err) {
-                        return res.json(err);
-                    } else {
-                        return res.status(200).json({success: true, msg: "Movie with the reviews has been found", mov});
-                    }
-                })
-            } else {
-                Movie.findOne({Title: req.body.Title}).exec(function (err, movie) {
-                    return res.json(movie);
-                })
+                if (!req.body.Title) {
+                    Movie.aggregate([{
+                        $lookup: {
+                            from: 'reviews',
+                            localField: 'Title',
+                            foreignField: 'Title',
+                            as: 'reviews',
+                        }
+                    }]).exec(function (err, mov) {
+                        if (err) {
+                            return res.json(err);
+                        } else {
+                            return res.status(200).json({
+                                success: true,
+                                msg: "Movie with the reviews has been found",
+                                mov
+                            });
+                        }
+                    })
+                } else {
+                    Movie.findOne({Title: req.body.Title}).exec(function (err, movie) {
+                        return res.json(movie);
+                    })
+                }
             }
         }
         catch(error) {
@@ -187,6 +193,7 @@ router.route('/movies')
              })
         }
     })
+
     .delete(authJwtController.isAuthenticated, function(req, res) {
         if (!req.body.Title) {
             res.json({success: false, message: "Please Include a title"})
