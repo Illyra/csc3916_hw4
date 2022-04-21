@@ -246,6 +246,9 @@ router.route('/reviews')
     })
     .get(authJwtController.isAuthenticated, async (req, res) => {
         try{
+            if(!req.body.Title){
+                res.status(400).json({success:false, msg: "Please Insert a Title"});
+            }
             const reviews = await Reviews.find()
             if (!reviews) {
                 return res.json(500).json("No review for ${movie}");
