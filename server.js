@@ -157,7 +157,6 @@ router.route('/movies')
 
     .get(authJwtController.isAuthenticated, async (req, res) => {
         try{
-            const movie = await Movie.find();
             if (req.query && req.query.reviews && req.query.reviews === 'true') {
                 Movie.aggregate([{
                     $lookup: {
@@ -166,19 +165,26 @@ router.route('/movies')
                         foreignField: 'Title',
                         as: 'reviews',
                     }
-                }]).exec(function (err, movies) {
+                }]).exec(function (err, mov) {
                     if (err) {
                         return res.json(err);
                     } else {
-                        return res.status(200).json({success: true, msg: "Movie with the reviews has been found", movies});
+                        return res.status(200).json({success: true, msg: "Movie with the reviews has been found", mov});
                     }
                 })
             } else {
-                return res.status(200).json(movie);
+                Movie.findOne({Title: req.body.Title}).exec(function (err, movie) {
+                    return res.json(movie);
+                })
             }
         }
         catch(error) {
-            return res.status(500).json(error);
+             Movie.find({}, function(err, movies){
+                 if(err){
+                     res.send(err);
+                 }
+                 res.json({Movie:movies});
+             })
         }
     })
     .delete(authJwtController.isAuthenticated, function(req, res) {
