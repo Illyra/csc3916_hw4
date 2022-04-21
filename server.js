@@ -165,10 +165,10 @@ router.route('/movies')
                     },
                     {
                         $lookup: {
-                            from: "Reviews",
+                            from: "reviews",
                             localField: "Title",
                             foreignField: "Title",
-                            as: "Reviews"
+                            as: "reviews"
                         }
                     }
                 ]).exec(function (err, mov) {
